@@ -17,6 +17,7 @@ namespace ECS
 	class Registry
 	{
 	public:
+		//test
 		Entity Create();
 		void Destroy(Entity aEntity);
 
