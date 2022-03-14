@@ -3,7 +3,12 @@
 
 namespace ECS
 {
-	using Entity = uint32_t;
+	using Entity = int32_t;
+
+	enum
+	{
+		null = -1 
+	};
 }
 
 

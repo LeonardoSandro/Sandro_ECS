@@ -26,6 +26,5 @@ namespace ECS
     {
         myFreeIDs.push(aEntity);
         myEntities[aEntity].reset();
-
     }
 }

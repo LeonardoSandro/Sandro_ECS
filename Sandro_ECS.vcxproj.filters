@@ -24,6 +24,9 @@
     <ClInclude Include="ComponentContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Registry.cpp">
@@ -35,5 +38,8 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>
