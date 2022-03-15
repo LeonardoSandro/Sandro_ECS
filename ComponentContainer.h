@@ -57,11 +57,11 @@ namespace ECS
 				int32_t unassigned = -1;
 				myComponentIndexes.resize(entity + 1, unassigned);
 
-				myComponentIndexes.back() = myComponents.size() - 1;
+				myComponentIndexes.back() = static_cast<int32_t>(myComponents.size() - 1);
 			}
 			else
 			{
-				myComponentIndexes[entity] = myComponents.size() - 1;
+				myComponentIndexes[entity] = static_cast<int32_t>(myComponents.size() - 1);
 			}
 
 			myViewIsUpdated = false;

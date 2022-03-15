@@ -2,6 +2,16 @@
 
 #include <memory>
 
+#include "MemoryManager.h"
+
+
+
+
+
+
+
+
+
 struct A
 {
 	float a =102.f;
@@ -81,4 +91,6 @@ int main()
 		a = 2;
 	}
 
+	MemoryManager memManager;
+	memManager.TestRun();
 }
