@@ -5,30 +5,32 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Memory Manager">
+      <UniqueIdentifier>{a4731411-f1aa-4500-901c-d5f8c1c421f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Registry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Entity.hpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ComponentContainer.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cc.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="MemoryManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Memory Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Registry.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentContainer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryAllocator.h">
+      <Filter>Memory Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +44,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MemoryManager.cpp">
+      <Filter>Memory Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
