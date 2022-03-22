@@ -3,6 +3,9 @@
 
 #include <limits>
 
+#pragma warning(push)
+#pragma warning( disable : 4100)
+
 template <class T>
 class MemoryAllocator
 {
@@ -35,10 +38,10 @@ public:
 
 
 
-	size_type max_size() const
-	{
-		return std::numeric_limits<size_type>::max();
-	}
+	//size_type max_size() const
+	//{
+	//	return std::numeric_limits<size_type>::max();
+	//}
 
 
 	//template<class U, class... Args>
@@ -62,7 +65,7 @@ public:
 		return reinterpret_cast<pointer>(myMM.Alloc(aSize * sizeof(T)));
 	}
 
-	void deallocate(pointer aPtr, size_type aSize)
+	void deallocate([[maybe_unused]] pointer aPtr, size_type aSize)
 	{
 		myMM.Free(reinterpret_cast<char*>(aPtr));
 	}
@@ -95,6 +98,6 @@ public:
 //}
 //
 
-
+#pragma warning(pop)
 
 

@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include "cc.h"
 
 //#define XXH_INLINE_ALL
 //#include "xxHash\xxhash.h"
@@ -17,12 +16,44 @@ namespace ECS
 	class Registry
 	{
 	public:
-		
-		Entity Create();
-		void Destroy(Entity aEntity);
+
+		Entity Create()
+		{
+			Entity entity = {};
+
+			if (myFreeIDs.size() > 0)
+			{
+			    entity = myFreeIDs.front();
+			    myFreeIDs.pop();
+
+			}
+			else
+			{
+			    //myEntities.emplace_back();
+			    //entity = static_cast<Entity>(myEntities.size() - 1);
+
+				entity = myEntitiesCount++;
+			}
+
+			return entity;
+		}
+		//	
+
+
+		void Destroy(Entity aEntity)
+		{
+			myFreeIDs.push(aEntity);
+			//myEntities[aEntity].reset();
+
+
+			for (auto& it : myComponentContainers)
+			{
+				it.second->EntityDestroyed(aEntity);
+			}
+		}
 
 		template<typename T>
-		T& Emplace(cc Entity aEntity)
+		T& Emplace(const Entity aEntity)
 		{
 			//const char* typeName = typeid(T).name();
 			//XXH64_hash_t hash = XXH3_64bits(typeName, sizeof(char) * strlen(typeName) + 1);
@@ -68,15 +99,15 @@ namespace ECS
 		}
 
 		template<typename T>
-		T* TryGet(cc Entity aEntity) 
+		T* TryGet(const Entity aEntity) 
 		{
 			//XXH64_hash_t hash = TypeNameToHash<T>();
 
-			auto container = GetContainer<T>();
+			auto container = TryGetContainer<T>();
 
 			if (container)
 			{
-				return container->TryGetComponent(aEntity);
+				return container->TryGet(aEntity);
 			}
 			else
 			{
@@ -84,10 +115,29 @@ namespace ECS
 			}
 		}
 
+
+		//template<typename T>
+		//T* Get(const Entity aEntity)
+		//{
+		//	//XXH64_hash_t hash = TypeNameToHash<T>();
+
+		//	auto container = TryGetContainer<T>();
+
+		//	if (container)
+		//	{
+		//		return container->GetComponent(aEntity);
+		//	}
+		//	else
+		//	{
+		//		return nullptr;
+		//	}
+		//}
+
+
 		//template<typename T>
 		//std::vector<T>& View()
 		//{
-		//	cc std::string typeName = typeid(T).name();
+		//	const std::string typeName = typeid(T).name();
 		//	ComponentContainer<T>* container = nullptr;
 
 		//	auto it = myComponentContainers.find(typeName);
@@ -103,9 +153,67 @@ namespace ECS
 
 
 		template<typename T>
-		ComponentContainer<T>& View()
+		ComponentContainer<T>* GetView()
 		{
-			return *GetContainer<T>();
+			return TryGetContainer<T>();
+		}
+
+		template<class T, class U>
+		struct View2
+		{
+			ComponentContainer<T>* myFirst;
+			ComponentContainer<U>* mySecond;
+		};
+
+		template<typename T, class U>
+		View2<T, U> GetView()
+		{
+			View2<T, U> view;
+
+			view.myFirst = TryGetContainer<T>();
+			view.mySecond = TryGetContainer<U>();
+
+
+
+			return view;
+		}
+
+		//template<class T, class U>
+		//struct View3
+		//{
+		//	ComponentContainer<T>* myFirst;
+		//	ComponentContainer<U>* mySecond;
+		//	ComponentContainer<V>* myThird;
+		//};
+
+		//template<typename T, class U>
+		//View3<T, U> GetView()
+		//{
+
+
+
+		//	return *TryGetContainer<T>();
+		//}
+
+
+
+
+
+		template<typename T>
+		ComponentContainer<T>* TryGetContainer()
+		{
+			const std::string typeName = typeid(T).name();
+			ComponentContainer<T>* container = nullptr;
+
+			auto it = myComponentContainers.find(typeName);
+
+
+			if (it != myComponentContainers.end())
+			{
+				container = dynamic_cast<ComponentContainer<T>*>(it->second);
+			}
+
+			return container;
 		}
 
 
@@ -113,7 +221,7 @@ namespace ECS
 		template<typename T>
 		ComponentContainer<T>* GetContainer()
 		{
-			cc std::string typeName = typeid(T).name();
+			const std::string typeName = typeid(T).name();
 			ComponentContainer<T>* container = nullptr;
 
 			auto it = myComponentContainers.find(typeName);
@@ -142,7 +250,11 @@ namespace ECS
 
 		static constexpr int myMaxComponentCount = 32;
 
-		std::vector<std::bitset<myMaxComponentCount>> myEntities;
+		//std::vector<Entity> myEntities;
+
+		Entity myEntitiesCount = 0;
+
+		//std::vector<std::bitset<myMaxComponentCount>> myEntities;
 		std::queue<Entity> myFreeIDs;
 
 		std::unordered_map<std::string, ComponentContainerInterface*> myComponentContainers{};

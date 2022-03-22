@@ -2,6 +2,16 @@
 #include "Entity.hpp"
 #include <vector>
 #include <memory>
+#include "MemoryAllocator.h"
+#include <string_view>
+
+
+
+
+template <class T> using Allocator = MemoryAllocator<T>;
+template <class T> using Vector = std::vector<T, MemoryAllocator<T>>;
+
+
 
 namespace ECS
 {
@@ -10,6 +20,11 @@ namespace ECS
 	public:
 		virtual ~ComponentContainerInterface() = default;
 		virtual void EntityDestroyed(Entity aEntity) = 0;
+
+	protected:
+		// Sparse set.
+		// The element index corresponds with the entity ID. The element contains a Index to the component belonging to the entity
+		std::vector<int32_t> myComponentIndexes;
 	};
 
 	template<typename T>
@@ -24,6 +39,26 @@ namespace ECS
 			ComponentWrapper(T aComponent, Entity aEntity) : myComponent(aComponent), myEntity(aEntity) {};
 			explicit ComponentWrapper(const ComponentWrapper& aWrapper) = default;
 
+			
+			ComponentWrapper& operator=(const ComponentWrapper& aWrapper)
+			{
+				if (this == &aWrapper)
+				{
+					return *this;
+				}
+
+
+
+				//std::swap(aWrapper.myComponent, myComponent);
+				//std::swap(aWrapper.myEntity, myEntity);
+
+				myComponent = aWrapper.myComponent;
+				myEntity = aWrapper.myEntity;
+
+
+				return *this;
+			}
+
 			T* GetComponent()
 			{
 				return &myComponent;
@@ -35,8 +70,9 @@ namespace ECS
 			}
 
 		private:
+
 			T myComponent;
-			const Entity myEntity;
+			Entity myEntity;
 			friend ComponentContainer;
 		};
 
@@ -64,16 +100,16 @@ namespace ECS
 				myComponentIndexes[entity] = static_cast<int32_t>(myComponents.size() - 1);
 			}
 
-			myViewIsUpdated = false;
+			//myViewIsUpdated = false;
 			return myComponents.back().myComponent;
 		}
 
 
-		T* TryGetComponent(Entity aEntity)
+		T* TryGet(Entity aEntity)
 		{
 			T* result = nullptr;
 
-			if (myComponentIndexes.size() < aEntity - 1)
+			if (myComponentIndexes.size() < static_cast<size_t>(aEntity + 1))
 			{
 				return result;
 			}
@@ -94,30 +130,79 @@ namespace ECS
 
 
 
+		T* Get(Entity aEntity)
+		{
+			assert(myComponentIndexes.size() >= static_cast<size_t>(aEntity + 1));
 
-		void EntityDestroyed(Entity aEntity) {};
+			T* result = nullptr;
+
+			size_t entity = static_cast<size_t>(aEntity);
+			int32_t componentIndex = myComponentIndexes[entity];
+
+			assert(componentIndex != -1);
+
+			result = &(myComponents[componentIndex].myComponent);
+
+			return result;
+		}
 
 
-		inline std::vector<ComponentWrapper>& GetComponents()
+
+
+
+
+		void EntityDestroyed(Entity aEntity) 
+		{
+
+			// Try to remove the component
+			if (myComponentIndexes.size() >= static_cast<size_t>(aEntity + 1))
+			{
+				int32_t componentIndex = myComponentIndexes[static_cast<int32_t>(aEntity)];
+
+				if (componentIndex != ECS::null)
+				{
+					myComponentIndexes[static_cast<int32_t>(aEntity)] = ECS::null;
+
+
+					if (componentIndex != myComponents.size() -1)
+					{
+						myComponents[componentIndex] = myComponents.back();
+					
+
+						// A other entity takes it's place
+						Entity otherEntity = myComponents[componentIndex].GetEntity();
+
+						myComponentIndexes[static_cast<int32_t>(otherEntity)] = componentIndex;
+					}
+
+					myComponents.pop_back();
+				}
+			}
+
+
+		};
+
+
+		Vector<ComponentWrapper>& GetComponents()
 		{
 			return myComponents;
 		}
 
 	private:
 
+		const int megaByteSize = 1024 * 1024;
+		MemoryManager mm{ megaByteSize };
 
-
-		std::vector<ComponentWrapper> myComponents;
 		// Dense set
+		Vector<ComponentWrapper> myComponents{ Allocator<ComponentWrapper>(mm) };
+		//std::vector<ComponentWrapper> myComponents;
 
-		// Sparse set.
-		// The element index corresponds with the entity ID. The element contains a Index to the component belonging to the entity
-		std::vector<int32_t> myComponentIndexes;
+		// For faster removal o
+		Entity myBackHolderEntity = ECS::null;
 
-
-		// For public use, fast iteration over all entities that owns component T.
-		std::vector<Entity> myView;
-		bool myViewIsUpdated = false;
+		//// For public use, fast iteration over all entities that owns component T.
+		//std::vector<Entity> myView;
+		//bool myViewIsUpdated = false;
 	};
 
 
