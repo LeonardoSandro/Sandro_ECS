@@ -32,6 +32,9 @@
     <ClInclude Include="MemoryAllocator.h">
       <Filter>Memory Manager</Filter>
     </ClInclude>
+    <ClInclude Include="SinkAndSightTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Registry.cpp">
@@ -47,6 +50,9 @@
       <Filter>Memory Manager</Filter>
     </ClCompile>
     <ClCompile Include="MemoryAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SinkAndSightTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
