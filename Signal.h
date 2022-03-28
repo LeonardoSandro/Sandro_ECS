@@ -44,7 +44,7 @@ namespace ECS
 
 	//template<typename T, typename ... Args>
 	template<typename ... Args>
-	class Sigh
+	class Signal
 	{
 	public:
 
@@ -113,7 +113,7 @@ private:
 	
 	//entt::sigh<void(int, char)> mySignal;
 
-	ECS::Sigh<int, char> myECSSignal;
+	ECS::Signal<int, char> myECSSignal;
 	void EstablishConnection(ListenerExample& aInstance);
 };
 

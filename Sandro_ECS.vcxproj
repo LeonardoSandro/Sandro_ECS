@@ -146,7 +146,7 @@
     <ClInclude Include="MemoryAllocator.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="Registry.h" />
-    <ClInclude Include="SinkAndSightTest.h" />
+    <ClInclude Include="Signal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComponentContainer.cpp" />
@@ -154,7 +154,7 @@
     <ClCompile Include="MemoryAllocator.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="Registry.cpp" />
-    <ClCompile Include="SinkAndSightTest.cpp" />
+    <ClCompile Include="Signal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -1,4 +1,4 @@
-#include "SinkAndSightTest.h"
+#include "Signal.h"
 
 using std::string;
 

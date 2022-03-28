@@ -4,7 +4,7 @@
 #include <memory>
 #include "MemoryAllocator.h"
 #include <string_view>
-#include "SinkAndSightTest.h"
+#include "Signal.h"
 
 
 
@@ -195,16 +195,28 @@ namespace ECS
 			myOnCreatedCallbacks.Connect(aFunction, aInstance);
 		}
 
+		template<class U>
+		void ConnectOnCreate(U&& aFunction)
+		{
+			myOnCreatedCallbacks.Connect(aFunction);
+		}
+
 		template<class U, class V>
 		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
 		{
 			myOnDestroyCallbacks.Connect(aFunction, aInstance);
 		}
 
+		template<class U>
+		void ConnectOnDestroy(U&& aFunction)
+		{
+			myOnDestroyCallbacks.Connect(aFunction);
+		}
+
 	private:
 
-		ECS::Sigh<Entity> myOnCreatedCallbacks;
-		ECS::Sigh<Entity> myOnDestroyCallbacks;
+		ECS::Signal<Entity> myOnCreatedCallbacks;
+		ECS::Signal<Entity> myOnDestroyCallbacks;
 
 		const int megaByteSize = 1024 * 1024;
 		MemoryManager mm{ megaByteSize };

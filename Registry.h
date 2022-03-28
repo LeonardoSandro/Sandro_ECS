@@ -264,6 +264,29 @@ namespace ECS
 			}
 		}
 
+		template<class T, class U>
+		void ConnectOnEmplace(U&& aFunction)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it == myComponentContainers.end())
+			{
+				auto* container = new ComponentContainer<T>();
+
+				myComponentContainers[typeName] = container;
+
+				container->ConnectOnCreate(aFunction);
+
+			}
+			else
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->ConnectOnCreate(aFunction);
+			}
+		}
+
 		template<class T, class U, class V>
 		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
 		{
@@ -284,6 +307,29 @@ namespace ECS
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
 				container->ConnectOnDestroy(aFunction, aInstance);
+			}
+		}
+
+		template<class T, class U>
+		void ConnectOnDestroy(U&& aFunction)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it == myComponentContainers.end())
+			{
+				auto* container = new ComponentContainer<T>();
+
+				myComponentContainers[typeName] = container;
+
+				container->ConnectOnDestroy(aFunction);
+
+			}
+			else
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->ConnectOnDestroy(aFunction);
 			}
 		}
 
