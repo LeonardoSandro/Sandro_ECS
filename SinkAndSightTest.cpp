@@ -31,14 +31,9 @@ void Foo(int aInt, char aChar)
 
 void SinkAndSightTest::EstablishConnection(ListenerExample& aInstance)
 {
-
-//	std::function<void(void)> function = std::bind(&ListenerExample::Bar, aInstance);
-
-
-
 	myECSSignal.Connect(&ListenerExample::Bar, aInstance);
-
 	myECSSignal.Connect(&ListenerExample2::Foo);
+	myECSSignal.Connect(&Foo);
 
 	myECSSignal.Publish(42, 'c');
 	aInstance;
@@ -51,46 +46,3 @@ void SinkAndSightTest::EstablishConnection(ListenerExample& aInstance)
 
 
 
-void SinkAndSightTest::Init()
-{
-
-	
-	
-	//entt::sink sink{ signal };
-
-
-	//Function-ptr-test
-
-	//void (SinkAndSightTest:: *blabla)(ListenerExample&);
-
-	//blabla = &SinkAndSightTest::EstablishConnection;
-
-
-
-	
-
-
-	ListenerExample instance;
-
-	
-
-	EstablishConnection(instance);
-
-
-	//mySignal.publish(42, 'c');
-
-
-
-	//sink.disconnect(instance);
-
-	//sink.disconnect();
-
-
-	//// Delegate test //
-	//entt::delegate<int(int)> delegate{};
-	//delegate.connect<&F>();
-	//StructTest instance;
-	//delegate.connect<&StructTest::G>(instance);
-	//delegate(4);
-	//////////////////
-}

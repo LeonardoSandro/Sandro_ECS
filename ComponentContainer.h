@@ -4,13 +4,12 @@
 #include <memory>
 #include "MemoryAllocator.h"
 #include <string_view>
-
+#include "SinkAndSightTest.h"
 
 
 
 template <class T> using Allocator = MemoryAllocator<T>;
 template <class T> using Vector = std::vector<T, MemoryAllocator<T>>;
-
 
 
 namespace ECS
@@ -100,6 +99,9 @@ namespace ECS
 				myComponentIndexes[entity] = static_cast<int32_t>(myComponents.size() - 1);
 			}
 
+
+			myOnCreatedCallbacks.Publish(aEntity);
+
 			//myViewIsUpdated = false;
 			return myComponents.back().myComponent;
 		}
@@ -153,7 +155,6 @@ namespace ECS
 
 		void EntityDestroyed(Entity aEntity) 
 		{
-
 			// Try to remove the component
 			if (myComponentIndexes.size() >= static_cast<size_t>(aEntity + 1))
 			{
@@ -163,11 +164,9 @@ namespace ECS
 				{
 					myComponentIndexes[static_cast<int32_t>(aEntity)] = ECS::null;
 
-
 					if (componentIndex != myComponents.size() -1)
 					{
 						myComponents[componentIndex] = myComponents.back();
-					
 
 						// A other entity takes it's place
 						Entity otherEntity = myComponents[componentIndex].GetEntity();
@@ -176,10 +175,10 @@ namespace ECS
 					}
 
 					myComponents.pop_back();
+
+					myOnDestroyCallbacks.Publish(aEntity);
 				}
 			}
-
-
 		};
 
 
@@ -188,7 +187,24 @@ namespace ECS
 			return myComponents;
 		}
 
+
+
+		template<class U, class V>
+		void ConnectOnCreate(U&& aFunction, V&& aInstance)
+		{
+			myOnCreatedCallbacks.Connect(aFunction, aInstance);
+		}
+
+		template<class U, class V>
+		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
+		{
+			myOnDestroyCallbacks.Connect(aFunction, aInstance);
+		}
+
 	private:
+
+		ECS::Sigh<Entity> myOnCreatedCallbacks;
+		ECS::Sigh<Entity> myOnDestroyCallbacks;
 
 		const int megaByteSize = 1024 * 1024;
 		MemoryManager mm{ megaByteSize };

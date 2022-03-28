@@ -52,6 +52,9 @@ namespace ECS
 			}
 		}
 
+
+
+
 		template<typename T>
 		T& Emplace(const Entity aEntity)
 		{
@@ -80,6 +83,8 @@ namespace ECS
 
 
 				return container->AddComponent(aEntity);
+
+
 
 
 				//std::pair <size_t, std::shared_ptr<ComponentContainerInterface>>(typeName, std::make_shared<ComponentContainer<T>>());
@@ -233,6 +238,53 @@ namespace ECS
 			}
 
 			return container;
+		}
+
+
+		template<class T, class U, class V>
+		void ConnectOnEmplace(U&& aFunction, V&& aInstance)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it == myComponentContainers.end())
+			{
+				auto* container = new ComponentContainer<T>();
+
+				myComponentContainers[typeName] = container;
+
+				container->ConnectOnCreate(aFunction, aInstance);
+
+			}
+			else
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->ConnectOnCreate(aFunction, aInstance);
+			}
+		}
+
+		template<class T, class U, class V>
+		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it == myComponentContainers.end())
+			{
+				auto* container = new ComponentContainer<T>();
+
+				myComponentContainers[typeName] = container;
+
+				container->ConnectOnDestroy(aFunction, aInstance);
+
+			}
+			else
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->ConnectOnDestroy(aFunction, aInstance);
+			}
 		}
 
 
