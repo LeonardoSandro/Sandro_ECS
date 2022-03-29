@@ -6,13 +6,16 @@
 #pragma warning(push)
 #pragma warning( disable : 4100)
 
+
 template <class T>
 class MemoryAllocator
+
+
 {
 public:
 	// Memory managerns storlek sätts inte som ett templatevärde 
 
-	MemoryManager& myMM;
+	MemoryManager* myMM = nullptr;
 
 public:
 
@@ -33,7 +36,7 @@ public:
 		typedef MemoryAllocator<U> other;
 	};
 
-	explicit MemoryAllocator(MemoryManager& aMM) : myMM(aMM) {};
+	explicit MemoryAllocator(MemoryManager& aMM) : myMM(&aMM) {};
 	~MemoryAllocator() = default;
 
 
@@ -53,21 +56,52 @@ public:
 
 
 	template <class U>
-	MemoryAllocator(const MemoryAllocator<U>& other): myMM(other.myMM)
+	MemoryAllocator(const MemoryAllocator<U>& aOther): myMM(aOther.myMM)
 	{
 	};
 
 	template <class U>
-	MemoryAllocator<U>& operator=(const MemoryAllocator<U>&) = delete;
+	MemoryAllocator<U>& operator=(const MemoryAllocator<U>& aOther)
+	{
+		myMM = aOther.myMM;
+		return *this;
+	}
+
+
+	template <class U>
+	bool operator== (const MemoryAllocator<U>& aMM)
+	{
+		return myMM == aMM.myMM;
+	}
+
+
+
+
+
+
+
+	//template <class U>
+	//MemoryAllocator<U>& operator=(const MemoryAllocator<U>&) = delete;
+
+
+
+	//template <class U>
+	//void Swap(MemoryAllocator<U>& aLhs, MemoryAllocator<U>& aRhs)
+	//{
+	//	aLhs;
+	//	aRhsfffffffff;
+	//}
+
+
 
 	pointer allocate(size_type aSize)
 	{
-		return reinterpret_cast<pointer>(myMM.Alloc(aSize * sizeof(T)));
+		return reinterpret_cast<pointer>(myMM->Alloc(aSize * sizeof(T)));
 	}
 
 	void deallocate([[maybe_unused]] pointer aPtr, size_type aSize)
 	{
-		myMM.Free(reinterpret_cast<char*>(aPtr));
+		myMM->Free(reinterpret_cast<char*>(aPtr));
 	}
 
 

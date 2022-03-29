@@ -11,14 +11,18 @@
 template <class T> using Allocator = MemoryAllocator<T>;
 template <class T> using Vector = std::vector<T, MemoryAllocator<T>>;
 
-
 namespace ECS
 {
+	constexpr uint64_t megaByteSize = 1024 * 1024;
+
 	class ComponentContainerInterface
 	{
 	public:
 		virtual ~ComponentContainerInterface() = default;
 		virtual void EntityDestroyed(Entity aEntity) = 0;
+
+
+		virtual void Reset() = 0;
 
 	protected:
 		// Sparse set.
@@ -46,10 +50,6 @@ namespace ECS
 					return *this;
 				}
 
-
-
-				//std::swap(aWrapper.myComponent, myComponent);
-				//std::swap(aWrapper.myEntity, myEntity);
 
 				myComponent = aWrapper.myComponent;
 				myEntity = aWrapper.myEntity;
@@ -79,6 +79,7 @@ namespace ECS
 
 		// Copy c:tor
 		ComponentContainer(const ComponentContainer& aContainer) = delete;
+
 		
 
 
@@ -149,10 +150,6 @@ namespace ECS
 		}
 
 
-
-
-
-
 		void EntityDestroyed(Entity aEntity) 
 		{
 			// Try to remove the component
@@ -213,20 +210,30 @@ namespace ECS
 			myOnDestroyCallbacks.Connect(aFunction);
 		}
 
+
+		// Preserves callbacks
+		void Reset() 
+		{
+			myComponents.clear();
+			myComponentIndexes.clear();
+		}
+
 	private:
 
 		ECS::Signal<Entity> myOnCreatedCallbacks;
 		ECS::Signal<Entity> myOnDestroyCallbacks;
 
-		const int megaByteSize = 1024 * 1024;
-		MemoryManager mm{ megaByteSize };
+
+		MemoryManager myMemoryManager{ megaByteSize };
 
 		// Dense set
-		Vector<ComponentWrapper> myComponents{ Allocator<ComponentWrapper>(mm) };
-		//std::vector<ComponentWrapper> myComponents;
+		Vector<ComponentWrapper> myComponents{ Allocator<ComponentWrapper>(myMemoryManager) };
 
-		// For faster removal o
-		Entity myBackHolderEntity = ECS::null;
+
+		// For faster removal 
+		//Entity myBackHolderEntity = ECS::null;
+
+
 
 		//// For public use, fast iteration over all entities that owns component T.
 		//std::vector<Entity> myView;

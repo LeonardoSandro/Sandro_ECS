@@ -1,7 +1,5 @@
 #include "MemoryManager.h"
 
-constexpr int IS_ALLOCATED = 1;
-constexpr int IS_END_OF_HEAP = 2;
 
 //
 //void MemoryManager::TestRun()

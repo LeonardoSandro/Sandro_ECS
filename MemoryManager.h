@@ -45,7 +45,7 @@ constexpr int GB = 1024 * 1024 * 1024;
 class MemoryManager
 {
 	char* myHeap = nullptr;
-	const uint64_t myHeapCapacity;
+	uint64_t myHeapCapacity;
 	//HeapChunk myHeapAlloced[HEAP_ALLOCED_CAPACITY] = { 0 };
 	//HeapChunk myHeapFreed[HEAP_FREED_CAPACITY] = { 0 };
 
@@ -155,6 +155,15 @@ public:
 
 
 	}
+
+	~MemoryManager()
+	{
+		delete myHeap;
+		myHeap = nullptr;
+	}
+
+
+
 
 	header* FindFirstFit(header aBlockSize)
 	{

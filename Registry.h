@@ -334,6 +334,44 @@ namespace ECS
 		}
 
 
+		void Reset(const bool aPreserveSignalConnections = false)
+		{
+
+			myEntitiesCount = 0;
+
+
+			std::queue<Entity> emptyQueue;
+			std::swap(myFreeIDs, emptyQueue);
+
+
+
+
+
+			if (aPreserveSignalConnections == false)
+			{
+
+				for (auto it : myComponentContainers)
+				{
+					delete it.second;
+				}
+
+
+				std::unordered_map<std::string, ComponentContainerInterface*> emptyMap;
+				std::swap(myComponentContainers, emptyMap);
+
+			}
+			else
+			{
+				for (auto a : myComponentContainers)
+				{
+					a.second->Reset();
+				}
+			}
+		}
+
+
+
+
 	private:
 
 
