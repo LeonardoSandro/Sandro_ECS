@@ -19,7 +19,7 @@ namespace ECS
 	{
 	public:
 		virtual ~ComponentContainerInterface() = default;
-		virtual void EntityDestroyed(Entity aEntity) = 0;
+		virtual bool RemoveComponent(Entity aEntity) = 0;
 
 
 		virtual void Reset() = 0;
@@ -101,12 +101,11 @@ namespace ECS
 			}
 
 
-			myOnCreatedCallbacks.Publish(aEntity);
+			myOnCreateCallbacks.Publish(aEntity);
 
 			//myViewIsUpdated = false;
 			return myComponents.back().myComponent;
 		}
-
 
 		T* TryGet(Entity aEntity)
 		{
@@ -150,64 +149,91 @@ namespace ECS
 		}
 
 
-		void EntityDestroyed(Entity aEntity) 
+		bool RemoveComponent(Entity aEntity) 
 		{
 			// Try to remove the component
-			if (myComponentIndexes.size() >= static_cast<size_t>(aEntity + 1))
+			if (myComponentIndexes.size() < static_cast<size_t>(aEntity + 1))
 			{
-				int32_t componentIndex = myComponentIndexes[static_cast<int32_t>(aEntity)];
-
-				if (componentIndex != ECS::null)
-				{
-					myComponentIndexes[static_cast<int32_t>(aEntity)] = ECS::null;
-
-					if (componentIndex != myComponents.size() -1)
-					{
-						myComponents[componentIndex] = myComponents.back();
-
-						// A other entity takes it's place
-						Entity otherEntity = myComponents[componentIndex].GetEntity();
-
-						myComponentIndexes[static_cast<int32_t>(otherEntity)] = componentIndex;
-					}
-
-					myComponents.pop_back();
-
-					myOnDestroyCallbacks.Publish(aEntity);
-				}
+				return false;
 			}
-		};
 
+			int32_t componentIndex = myComponentIndexes[static_cast<int32_t>(aEntity)];
+
+			if (componentIndex != ECS::null)
+			{
+				myComponentIndexes[static_cast<int32_t>(aEntity)] = ECS::null;
+
+				if (componentIndex != myComponents.size() -1)
+				{
+					myComponents[componentIndex] = myComponents.back();
+
+					// A other entity takes it's place
+					Entity otherEntity = myComponents[componentIndex].GetEntity();
+
+					myComponentIndexes[static_cast<int32_t>(otherEntity)] = componentIndex;
+				}
+
+				myComponents.pop_back();
+
+				myOnRemoveCallbacks.Publish(aEntity);
+
+				return true;
+			}
+			
+			return false;
+		};
 
 		Vector<ComponentWrapper>& GetComponents()
 		{
 			return myComponents;
 		}
 
-
-
 		template<class U, class V>
 		void ConnectOnCreate(U&& aFunction, V&& aInstance)
 		{
-			myOnCreatedCallbacks.Connect(aFunction, aInstance);
+			myOnCreateCallbacks.Connect(aFunction, aInstance);
 		}
 
 		template<class U>
 		void ConnectOnCreate(U&& aFunction)
 		{
-			myOnCreatedCallbacks.Connect(aFunction);
+			myOnCreateCallbacks.Connect(aFunction);
+		}
+
+		template<class U, class V>
+		void DisconnectOnCreate(U&& aFunction, V&& aInstance)
+		{
+			myOnCreateCallbacks.Disconnect(aFunction, aInstance);
+		}
+
+		template<class U>
+		void DisconnectOnCreate(U&& aFunction)
+		{
+			myOnCreateCallbacks.Disconnect(aFunction);
 		}
 
 		template<class U, class V>
 		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
 		{
-			myOnDestroyCallbacks.Connect(aFunction, aInstance);
+			myOnRemoveCallbacks.Connect(aFunction, aInstance);
 		}
 
 		template<class U>
 		void ConnectOnDestroy(U&& aFunction)
 		{
-			myOnDestroyCallbacks.Connect(aFunction);
+			myOnRemoveCallbacks.Connect(aFunction);
+		}
+
+		template<class U, class V>
+		void DisconnectOnDestroy(U&& aFunction, V&& aInstance)
+		{
+			myOnRemoveCallbacks.Disconnect(aFunction, aInstance);
+		}
+
+		template<class U>
+		void DisconnectOnDestroy(U&& aFunction)
+		{
+			myOnRemoveCallbacks.Disconnect(aFunction);
 		}
 
 
@@ -220,8 +246,8 @@ namespace ECS
 
 	private:
 
-		ECS::Signal<Entity> myOnCreatedCallbacks;
-		ECS::Signal<Entity> myOnDestroyCallbacks;
+		ECS::Signal<Entity> myOnCreateCallbacks;
+		ECS::Signal<Entity> myOnRemoveCallbacks;
 
 
 		MemoryManager myMemoryManager{ megaByteSize };
@@ -239,9 +265,5 @@ namespace ECS
 		//std::vector<Entity> myView;
 		//bool myViewIsUpdated = false;
 	};
-
-
-
-
 }
 

@@ -6,6 +6,8 @@
 
 
 
+// Glöm inte att lägga functionerna i public/private
+
 
 
 
@@ -67,7 +69,6 @@ namespace ECS
 			std::function<void(Args ...)> function = Bind(aFunction, &aInstance);
 
 			myCallbacks.push_back(function);
-			aFunction; aInstance;
 		}
 
 		template<class U>
@@ -76,7 +77,40 @@ namespace ECS
 
 			myCallbacks.push_back(aFunction);
 		}
-		
+
+
+
+		template<class U>
+		void Disconnect(U&& aFunction)
+		{
+			for (size_t i = myCallbacks.size(); i > 0; i--)
+			{
+				if (GetAdress(myCallbacks[i -1]) == GetAdress(aFunction))
+				{
+					myCallbacks[i - 1] = myCallbacks.back();
+					myCallbacks.pop_back();
+				}
+			}
+		}
+
+
+		template<class U, class V>
+		void Disconnect(U&& aFunction, V&& aInstance)
+		{
+			// Kanske går att klistra in Bind-koden direkt här istället?
+			std::function<void(Args ...)> function = Bind(aFunction, &aInstance);
+
+
+			for (size_t i = myCallbacks.size(); i > 0; i--)
+			{
+				if (GetAdress(myCallbacks[i - 1]) == GetAdress(function))
+				{
+					myCallbacks[i - 1] = myCallbacks.back();
+					myCallbacks.pop_back();
+				}
+			}
+		}
+
 
 	private:
 
@@ -85,6 +119,19 @@ namespace ECS
 		std::function<A(Params...)> Bind(A(B::* function)(Params...), C pointer)
 		{
 			return [pointer, function](Params... params)->A {return (pointer->*function)(params...); };
+		}
+
+		//size_t GetAdress(std::function<void(Args...)> aFunction)
+		//{
+		//	typedef void(functionType)(Args...);
+		//	functionType** functionPointer = aFunction.template target<functionType*>();
+		//	return (size_t)*functionPointer;
+		//}
+
+
+		long GetAdress(std::function<void(Args...)> aFunction)
+		{
+			return *(long*)(char*)&aFunction;
 		}
 
 		std::vector<std::function<void(Args...)>> myCallbacks;

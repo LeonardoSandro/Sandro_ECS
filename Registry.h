@@ -48,10 +48,9 @@ namespace ECS
 
 			for (auto& it : myComponentContainers)
 			{
-				it.second->EntityDestroyed(aEntity);
+				it.second->RemoveComponent(aEntity);
 			}
 		}
-
 
 
 
@@ -119,6 +118,22 @@ namespace ECS
 				return nullptr;
 			}
 		}
+
+		template<typename T>
+		bool Remove(Entity aEntity)
+		{
+			auto container = TryGetContainer<T>();
+
+			if (container)
+			{
+				return container->RemoveComponent(aEntity);
+			}
+			else
+			{
+				return false;
+			}
+		}
+
 
 
 		//template<typename T>
@@ -288,6 +303,34 @@ namespace ECS
 		}
 
 		template<class T, class U, class V>
+		void DisconnectOnEmplace(U&& aFunction, V&& aInstance)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it != myComponentContainers.end())
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->DisconnectOnCreate(aFunction, aInstance);
+			}
+		}
+
+		template<class T, class U>
+		void DisconnectOnEmplace(U&& aFunction)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it != myComponentContainers.end())
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->DisconnectOnCreate(aFunction);
+			}
+		}
+
+		template<class T, class U, class V>
 		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
 		{
 			std::string typeName = typeid(T).name();
@@ -333,19 +376,43 @@ namespace ECS
 			}
 		}
 
+		template<class T, class U, class V>
+		void DisconnectOnDestroy(U&& aFunction, V&& aInstance)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it != myComponentContainers.end())
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->DisconnectOnDestroy(aFunction, aInstance);
+			}
+		}
+
+		template<class T, class U>
+		void DisconnectOnDestroy(U&& aFunction)
+		{
+			std::string typeName = typeid(T).name();
+
+			auto it = myComponentContainers.find(typeName);
+
+			if (it != myComponentContainers.end())
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container->DisconnectOnDestroy(aFunction);
+			}
+		}
+
+
 
 		void Reset(const bool aPreserveSignalConnections = false)
 		{
-
 			myEntitiesCount = 0;
 
 
 			std::queue<Entity> emptyQueue;
 			std::swap(myFreeIDs, emptyQueue);
-
-
-
-
 
 			if (aPreserveSignalConnections == false)
 			{
