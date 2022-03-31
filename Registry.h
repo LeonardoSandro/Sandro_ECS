@@ -5,17 +5,20 @@
 #include "ComponentContainer.h"
 #include <unordered_map>
 #include <memory>
-#include <string>
+#include <bitset>
 
 //#define XXH_INLINE_ALL
 //#include "xxHash\xxhash.h"
 
 
+
 namespace ECS
 {
+	template <typename size_t maxSize = 100000>
 	class Registry
 	{
 	public:
+
 
 		Entity Create()
 		{
@@ -34,6 +37,14 @@ namespace ECS
 
 				entity = myEntitiesCount++;
 			}
+			
+
+			if (myEntitiesCount > myValidEntities.size())
+			{
+				return -1;
+			}
+
+			myValidEntities[static_cast<size_t>(entity)] = true;
 
 			return entity;
 		}
@@ -50,6 +61,8 @@ namespace ECS
 			{
 				it.second->RemoveComponent(aEntity);
 			}
+
+			myValidEntities[static_cast<size_t>(aEntity)] = false;
 		}
 
 
@@ -238,25 +251,25 @@ namespace ECS
 
 		
 
-		template<class T, class U>
-		struct View2
-		{
-			ComponentContainer<T>* myFirst;
-			ComponentContainer<U>* mySecond;
-		};
+		//template<class T, class U>
+		//struct View2
+		//{
+		//	ComponentContainer<T>* myFirst;
+		//	ComponentContainer<U>* mySecond;
+		//};
 
-		template<typename T, class U>
-		View2<T, U> GetView()
-		{
-			View2<T, U> view;
+		//template<typename T, class U>
+		//View2<T, U> GetView()
+		//{
+		//	View2<T, U> view;
 
-			view.myFirst = TryGetContainer<T>();
-			view.mySecond = TryGetContainer<U>();
+		//	view.myFirst = TryGetContainer<T>();
+		//	view.mySecond = TryGetContainer<U>();
 
 
 
-			return view;
-		}
+		//	return view;
+		//}
 
 		//template<class T, class U>
 		//struct View3
@@ -496,6 +509,16 @@ namespace ECS
 			}
 		}
 
+		bool Valid(ECS::Entity aEntity)
+		{
+			if (aEntity < 0 || static_cast<size_t>(aEntity) + 1 > myValidEntities.size())
+			{
+				return false;
+			}
+
+			return myValidEntities[static_cast<size_t>(aEntity)];
+		}
+
 
 
 
@@ -519,6 +542,9 @@ namespace ECS
 
 		//std::vector<std::bitset<myMaxComponentCount>> myEntities;
 		std::queue<Entity> myFreeIDs;
+
+
+		std::bitset<maxSize> myValidEntities;
 
 		std::unordered_map<std::string, ComponentContainerInterface*> myComponentContainers{};
 	};

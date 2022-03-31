@@ -155,7 +155,7 @@ int main()
 	test2(mm);
 
 
-	std::unique_ptr<ECS::Registry> registry = std::make_unique<ECS::Registry>();
+	std::unique_ptr<ECS::Registry<>> registry = std::make_unique<ECS::Registry<>>();
 
 	ECS::Entity entity0 = registry->Create();
 	ECS::Entity entity1 = registry->Create();

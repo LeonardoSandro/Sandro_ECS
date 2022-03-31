@@ -267,7 +267,20 @@ namespace ECS
 			return myComponents.end();
 		}
 
+		size_t size()
+		{
+			return myComponents.size();
+		}
 
+		ComponentWrapper& operator[] (int index)
+		{
+			return myComponents[index];
+		}
+
+		ComponentWrapper& operator[] (int index) const
+		{
+			return myComponents[index];
+		}
 
 	private:
 
