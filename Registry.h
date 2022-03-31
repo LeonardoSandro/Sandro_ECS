@@ -83,9 +83,6 @@ namespace ECS
 
 				return container->AddComponent(aEntity);
 
-
-
-
 				//std::pair <size_t, std::shared_ptr<ComponentContainerInterface>>(typeName, std::make_shared<ComponentContainer<T>>());
 
 				//myComponentContainers.insert({typeName, std::make_shared<ComponentContainer<T>>()});
@@ -100,6 +97,38 @@ namespace ECS
 
 
 
+		}
+
+
+
+		template<typename T>
+		T& GetOrEmplace(const Entity aEntity)
+		{
+			auto* container = TryGetContainer<T>();
+
+			if (container)
+			{
+				T* component = container->TryGet(aEntity);
+
+				if (component)
+				{
+					return *component;
+				}
+				else
+				{
+					return container->AddComponent(aEntity);
+				}
+			}
+			else
+			{
+				auto* newContainer = new ComponentContainer<T>();
+
+				std::string typeName = typeid(T).name();
+
+				myComponentContainers[typeName] = newContainer;
+
+				return newContainer->AddComponent(aEntity);
+			}
 		}
 
 		template<typename T>
@@ -118,6 +147,17 @@ namespace ECS
 				return nullptr;
 			}
 		}
+
+		template<typename T>
+		T& Get(const Entity aEntity)
+		{
+			//XXH64_hash_t hash = TypeNameToHash<T>();
+			auto* container = GetContainer<T>();
+
+			return *container->Get(aEntity);
+
+		}
+
 
 		template<typename T>
 		bool Remove(Entity aEntity)
@@ -172,11 +212,31 @@ namespace ECS
 		//}
 
 
+		//template<typename T>
+		//ComponentContainer<T>* GetView()
+		//{
+		//	return TryGetContainer<T>();
+		//}
+
 		template<typename T>
-		ComponentContainer<T>* GetView()
+		ComponentContainer<T>& GetView()
 		{
-			return TryGetContainer<T>();
+			auto* container = TryGetContainer<T>();
+
+			if (container == nullptr)
+			{
+				container = new ComponentContainer<T>();
+
+				std::string typeName = typeid(T).name();
+
+				myComponentContainers[typeName] = container;
+			}
+
+
+			return *container;
 		}
+
+		
 
 		template<class T, class U>
 		struct View2

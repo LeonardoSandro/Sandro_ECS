@@ -190,12 +190,14 @@ int main()
 	auto* componentNOTNULL = registry->TryGet<A>(entity3);
 	auto* componentNOTNULL2 = registry->TryGet<A>(entity4);
 
-	auto* view = registry->GetView<Transform>();
-	for (auto& componentWrapper : view->GetComponents())
-	{
-		auto component = componentWrapper.GetComponent();
+	auto& view = registry->GetView<Transform>();
 
-		component->x += component->velocityX;
+
+	for (auto& componentWrapper : view.GetComponents())
+	{
+		auto& component = componentWrapper.GetComponent();
+
+		component.x += component.velocityX;
 	}
 
 	auto* gagag = registry->TryGet<Transform>(entity1);

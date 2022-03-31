@@ -11,6 +11,7 @@
 template <class T> using Allocator = MemoryAllocator<T>;
 template <class T> using Vector = std::vector<T, MemoryAllocator<T>>;
 
+
 namespace ECS
 {
 	constexpr uint64_t megaByteSize = 1024 * 1024;
@@ -58,9 +59,9 @@ namespace ECS
 				return *this;
 			}
 
-			T* GetComponent()
+			T& GetComponent()
 			{
-				return &myComponent;
+				return myComponent;
 			}
 
 			Entity GetEntity()
@@ -243,6 +244,30 @@ namespace ECS
 			myComponents.clear();
 			myComponentIndexes.clear();
 		}
+
+
+		auto begin()
+		{
+			return myComponents.begin();
+		}
+
+		auto begin() const
+		{
+			return myComponents.begin();
+		}
+
+
+		auto end()
+		{
+			return myComponents.end();
+		}
+
+		auto end() const
+		{
+			return myComponents.end();
+		}
+
+
 
 	private:
 
