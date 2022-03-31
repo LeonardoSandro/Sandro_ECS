@@ -84,7 +84,7 @@ namespace ECS
 		
 
 
-		T& AddComponent(Entity aEntity)
+		T& Emplace(Entity aEntity)
 		{
 			myComponents.push_back({ T(), aEntity });
 			size_t entity = static_cast<size_t>(aEntity);
@@ -107,6 +107,7 @@ namespace ECS
 			//myViewIsUpdated = false;
 			return myComponents.back().myComponent;
 		}
+
 
 		T* TryGet(Entity aEntity)
 		{

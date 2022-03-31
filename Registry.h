@@ -65,18 +65,15 @@ namespace ECS
 			myValidEntities[static_cast<size_t>(aEntity)] = false;
 		}
 
-
-
+		/// <summary>
+		/// Emplaces a new component. Does nothing if component already exists.
+		/// </summary>
+		/// <typeparam name="T">ComponentType</typeparam>
+		/// <param name="aEntity"></param>
+		/// <returns>Component reference</returns>
 		template<typename T>
 		T& Emplace(const Entity aEntity)
-		{
-			//const char* typeName = typeid(T).name();
-			//XXH64_hash_t hash = XXH3_64bits(typeName, sizeof(char) * strlen(typeName) + 1);
-			//
-			//XXH64_hash_t hash = TypeNameToHash<T>();
-			//size_t typeName = typeid(T).hash_code();
-			
-
+		{		
 			std::string typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
@@ -87,29 +84,65 @@ namespace ECS
 
 				myComponentContainers[typeName] = container;
 
-	/*			std::shared_ptr<ComponentContainerInterface> Test = myComponentContainers[hash];
-				std::shared_ptr<ComponentContainer<T>> derived = std::dynamic_pointer_cast<ComponentContainer<T>>(Test);*/
+				return container->Emplace(aEntity);
 
-
-				//myComponentContainers.insert({typeName, static_cast<std::shared_ptr<ComponentContainerInterface>>(std::make_shared<ComponentContainer<T>>())});
-
-
-				return container->AddComponent(aEntity);
-
-				//std::pair <size_t, std::shared_ptr<ComponentContainerInterface>>(typeName, std::make_shared<ComponentContainer<T>>());
-
-				//myComponentContainers.insert({typeName, std::make_shared<ComponentContainer<T>>()});
 			}
 			else
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
 
-				return container->AddComponent(aEntity);
+				T* component = container->TryGet(aEntity);
+
+				if (component)
+				{
+					return *component;
+				}
+				else
+				{
+					return container->Emplace(aEntity);
+				}
+
 			}
+		}
 
 
+		/// <summary>
+		/// Emplaces a new component. Does nothing if component already exists.
+		/// </summary>
+		/// <typeparam name="T">ComponentType</typeparam>
+		/// <param name="aEntity"></param>
+		/// <returns>Component reference</returns>
+		template<typename T>
+		T& EmplaceOrReplace(const Entity aEntity)
+		{
+			std::string typeName = typeid(T).name();
 
+			auto it = myComponentContainers.find(typeName);
 
+			if (it == myComponentContainers.end())
+			{
+				auto* container = new ComponentContainer<T>();
+
+				myComponentContainers[typeName] = container;
+
+				return container->Emplace(aEntity);
+
+			}
+			else
+			{
+				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				
+				T* component = container->TryGet(aEntity);
+
+				if (component)
+				{
+					return *component;
+				}
+				else
+				{
+					return container->Emplace(aEntity);
+				}
+			}
 		}
 
 
@@ -129,7 +162,7 @@ namespace ECS
 				}
 				else
 				{
-					return container->AddComponent(aEntity);
+					return container->Emplace(aEntity);
 				}
 			}
 			else
@@ -140,7 +173,7 @@ namespace ECS
 
 				myComponentContainers[typeName] = newContainer;
 
-				return newContainer->AddComponent(aEntity);
+				return newContainer->Emplace(aEntity);
 			}
 		}
 
