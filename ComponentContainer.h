@@ -215,25 +215,25 @@ namespace ECS
 		}
 
 		template<class U, class V>
-		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
+		void ConnectOnRemove(U&& aFunction, V&& aInstance)
 		{
 			myOnRemoveCallbacks.Connect(aFunction, aInstance);
 		}
 
 		template<class U>
-		void ConnectOnDestroy(U&& aFunction)
+		void ConnectOnRemove(U&& aFunction)
 		{
 			myOnRemoveCallbacks.Connect(aFunction);
 		}
 
 		template<class U, class V>
-		void DisconnectOnDestroy(U&& aFunction, V&& aInstance)
+		void DisconnectOnRemove(U&& aFunction, V&& aInstance)
 		{
 			myOnRemoveCallbacks.Disconnect(aFunction, aInstance);
 		}
 
 		template<class U>
-		void DisconnectOnDestroy(U&& aFunction)
+		void DisconnectOnRemove(U&& aFunction)
 		{
 			myOnRemoveCallbacks.Disconnect(aFunction);
 		}

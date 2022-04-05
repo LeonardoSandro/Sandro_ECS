@@ -437,7 +437,7 @@ namespace ECS
 		}
 
 		template<class T, class U, class V>
-		void ConnectOnDestroy(U&& aFunction, V&& aInstance)
+		void ConnectOnRemove(U&& aFunction, V&& aInstance)
 		{
 			std::string typeName = typeid(T).name();
 
@@ -449,18 +449,18 @@ namespace ECS
 
 				myComponentContainers[typeName] = container;
 
-				container->ConnectOnDestroy(aFunction, aInstance);
+				container->ConnectOnRemove(aFunction, aInstance);
 
 			}
 			else
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->ConnectOnDestroy(aFunction, aInstance);
+				container->ConnectOnRemove(aFunction, aInstance);
 			}
 		}
 
 		template<class T, class U>
-		void ConnectOnDestroy(U&& aFunction)
+		void ConnectOnRemove(U&& aFunction)
 		{
 			std::string typeName = typeid(T).name();
 
@@ -472,18 +472,18 @@ namespace ECS
 
 				myComponentContainers[typeName] = container;
 
-				container->ConnectOnDestroy(aFunction);
+				container->ConnectOnRemove(aFunction);
 
 			}
 			else
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->ConnectOnDestroy(aFunction);
+				container->ConnectOnRemove(aFunction);
 			}
 		}
 
 		template<class T, class U, class V>
-		void DisconnectOnDestroy(U&& aFunction, V&& aInstance)
+		void DisconnectOnRemove(U&& aFunction, V&& aInstance)
 		{
 			std::string typeName = typeid(T).name();
 
@@ -492,12 +492,12 @@ namespace ECS
 			if (it != myComponentContainers.end())
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->DisconnectOnDestroy(aFunction, aInstance);
+				container->DisconnectOnRemove(aFunction, aInstance);
 			}
 		}
 
 		template<class T, class U>
-		void DisconnectOnDestroy(U&& aFunction)
+		void DisconnectOnRemove(U&& aFunction)
 		{
 			std::string typeName = typeid(T).name();
 
@@ -506,7 +506,7 @@ namespace ECS
 			if (it != myComponentContainers.end())
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->DisconnectOnDestroy(aFunction);
+				container->DisconnectOnRemove(aFunction);
 			}
 		}
 
