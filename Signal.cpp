@@ -1,6 +1,5 @@
 #include "Signal.h"
-
-using std::string;
+#include <string>
 
 int F(int aInt)
 {
@@ -14,7 +13,7 @@ struct StructTest
 		return aInt;
 	}
 
-	int H(const string&)
+	int H(const std::string&)
 	{
 		return 0;
 	}
@@ -31,7 +30,7 @@ void Foo(int aInt, char aChar)
 
 void SinkAndSightTest::EstablishConnection(ListenerExample& aInstance)
 {
-	myECSSignal.Connect(&ListenerExample::Bar, aInstance);
+	myECSSignal.Connect(&ListenerExample::Bar, &aInstance);
 	myECSSignal.Connect(&ListenerExample2::Foo);
 	myECSSignal.Connect(&Foo);
 

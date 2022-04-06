@@ -10,11 +10,11 @@
 //#define XXH_INLINE_ALL
 //#include "xxHash\xxhash.h"
 
-
-
 namespace ECS
 {
-	template <typename size_t maxSize = 100000>
+	constexpr uint64_t megaByteSize = 1024 * 1024;
+
+	template <typename size_t maxSize = 100000, typename size_t memoryMegaByteSize = 1>
 	class Registry
 	{
 	public:
@@ -76,7 +76,7 @@ namespace ECS
 
 			if (it == myComponentContainers.end())
 			{
-				auto* container = new ComponentContainer<T>();
+				auto* container = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				myComponentContainers[typeName] = container;
 
@@ -85,7 +85,7 @@ namespace ECS
 			}
 			else
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 
 				T* component = container->TryGet(aEntity);
 
@@ -100,7 +100,6 @@ namespace ECS
 
 			}
 		}
-
 
 		/// <summary>
 		/// Emplaces a new component. Replaces if component already exist.
@@ -117,7 +116,7 @@ namespace ECS
 
 			if (it == myComponentContainers.end())
 			{
-				auto* container = new ComponentContainer<T>();
+				auto* container = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				myComponentContainers[typeName] = container;
 
@@ -126,7 +125,7 @@ namespace ECS
 			}
 			else
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				
 				return container->EmplaceOrReplace(aEntity);
 			}
@@ -160,7 +159,7 @@ namespace ECS
 			}
 			else
 			{
-				auto* newContainer = new ComponentContainer<T>();
+				auto* newContainer = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				const char* typeName = typeid(T).name();
 
@@ -234,13 +233,13 @@ namespace ECS
 		/// <typeparam name="T">Type of component</typeparam>
 		/// <returns>Component container reference </returns>
 		template<typename T>
-		ComponentContainer<T>& GetView()
+		ComponentContainer<T, memoryMegaByteSize>& GetView()
 		{
 			auto* container = TryGetContainer<T>();
 
 			if (container == nullptr)
 			{
-				container = new ComponentContainer<T>();
+				container = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				const char* typeName = typeid(T).name();
 
@@ -253,13 +252,13 @@ namespace ECS
 
 
 		/// <summary>
-		/// Connects a function to be called when the choosen component is emplaced to any entity.
+		/// Connects a function to be called when the choosen component is emplaced or replaced to any entity.
 		/// </summary>
 		/// <typeparam name="T">Type of component</typeparam>
-		/// <typeparam name="U">Adress of a function to be called </typeparam>
+		/// <typeparam name="U"></typeparam>
 		/// <typeparam name="V"></typeparam>
-		/// <param name="aFunction"></param>
-		/// <param name="aInstance"></param>
+		/// <param name="aFunction">Adress of a function to be connected </param>
+		/// <param name="aInstance">Adress of the functions class instance </param>
 		template<class T, class U, class V>
 		void ConnectOnEmplace(U&& aFunction, V&& aInstance)
 		{
@@ -269,7 +268,7 @@ namespace ECS
 
 			if (it == myComponentContainers.end())
 			{
-				auto* container = new ComponentContainer<T>();
+				auto* container = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				myComponentContainers[typeName] = container;
 
@@ -279,12 +278,18 @@ namespace ECS
 			}
 			else
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				//container->ConnectOnCreate(aFunction, aInstance);
 				container->ConnectOnCreate(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
+		/// <summary>
+		/// Connects a function to be called when the choosen component is emplaced or replaced to any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U"></typeparam>
+		/// <param name="aFunction">Adress of a function to be connected </param>
 		template<class T, class U>
 		void ConnectOnEmplace(U&& aFunction)
 		{
@@ -294,7 +299,7 @@ namespace ECS
 
 			if (it == myComponentContainers.end())
 			{
-				auto* container = new ComponentContainer<T>();
+				auto* container = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				myComponentContainers[typeName] = container;
 
@@ -303,11 +308,19 @@ namespace ECS
 			}
 			else
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				container->ConnectOnCreate(std::forward<U>(aFunction));
 			}
 		}
 
+		/// <summary>
+		/// Disconnects a function to be called when the choosen component is emplaced or replaced to any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U"></typeparam>
+		/// <typeparam name="V"></typeparam>
+		/// <param name="aFunction">Adress of a function to be disconnected </param>
+		/// <param name="aInstance">Adress of the functions class instance </param>
 		template<class T, class U, class V>
 		void DisconnectOnEmplace(U&& aFunction, V&& aInstance)
 		{
@@ -317,11 +330,17 @@ namespace ECS
 
 			if (it != myComponentContainers.end())
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				container->DisconnectOnCreate(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
+		/// <summary>
+		/// Disconnects a function to be called when the choosen component is emplaced or replaced to any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U"></typeparam>
+		/// <param name="aFunction">Adress of a function to be disconnected </param>
 		template<class T, class U>
 		void DisconnectOnEmplace(U&& aFunction)
 		{
@@ -331,11 +350,19 @@ namespace ECS
 
 			if (it != myComponentContainers.end())
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				container->DisconnectOnCreate(std::forward<U>(aFunction));
 			}
 		}
 
+		/// <summary>
+		/// Connects a function to be called when the choosen component is removed from any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U"></typeparam>
+		/// <typeparam name="V"></typeparam>
+		/// <param name="aFunction">Adress of a function to be connected </param>
+		/// <param name="aInstance">Adress of the functions class instance </param>
 		template<class T, class U, class V>
 		void ConnectOnRemove(U&& aFunction, V&& aInstance)
 		{
@@ -345,7 +372,7 @@ namespace ECS
 
 			if (it == myComponentContainers.end())
 			{
-				auto* container = new ComponentContainer<T>();
+				auto* container = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				myComponentContainers[typeName] = container;
 
@@ -354,11 +381,17 @@ namespace ECS
 			}
 			else
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				container->ConnectOnRemove(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
+		/// <summary>
+		/// Connects a function to be called when the choosen component is removed from any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U"></typeparam>
+		/// <param name="aFunction">Adress of a function to be connected </param>
 		template<class T, class U>
 		void ConnectOnRemove(U&& aFunction)
 		{
@@ -368,7 +401,7 @@ namespace ECS
 
 			if (it == myComponentContainers.end())
 			{
-				auto* container = new ComponentContainer<T>();
+				auto* container = new ComponentContainer<T, memoryMegaByteSize>(myMemoryManager);
 
 				myComponentContainers[typeName] = container;
 
@@ -377,11 +410,19 @@ namespace ECS
 			}
 			else
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				container->ConnectOnRemove(std::forward<U>(aFunction));
 			}
 		}
 
+		/// <summary>
+		/// Disconnects a function to be called when the choosen component is removed from any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U"></typeparam>
+		/// <typeparam name="V"></typeparam>
+		/// <param name="aFunction">Adress of a function to be disconnected </param>
+		/// <param name="aInstance">Adress of the functions class instance </param>
 		template<class T, class U, class V>
 		void DisconnectOnRemove(U&& aFunction, V&& aInstance)
 		{
@@ -391,11 +432,17 @@ namespace ECS
 
 			if (it != myComponentContainers.end())
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				container->DisconnectOnRemove(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
+		/// <summary>
+		/// Disconnects a function to be called when the choosen component is removed from any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U"></typeparam>
+		/// <param name="aFunction">Adress of a function to be disconnected </param>
 		template<class T, class U>
 		void DisconnectOnRemove(U&& aFunction)
 		{
@@ -405,13 +452,16 @@ namespace ECS
 
 			if (it != myComponentContainers.end())
 			{
-				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				auto* container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 				container->DisconnectOnRemove(std::forward<U>(aFunction));
 			}
 		}
 
 
-
+		/// <summary>
+		/// Clears all the components and entities 
+		/// </summary>
+		/// <param name="aPreserveSignalConnections"> If true the signal connections is preserved </param>
 		void Reset(const bool aPreserveSignalConnections = false)
 		{
 			myEntitiesCount = 0;
@@ -442,6 +492,11 @@ namespace ECS
 			}
 		}
 
+		/// <summary>
+		/// Checks weather a entity is valid or not
+		/// </summary>
+		/// <param name="aEntity"></param>
+		/// <returns></returns>
 		bool Valid(ECS::Entity aEntity)
 		{
 			if (aEntity < 0 || static_cast<size_t>(aEntity) + 1 > myValidEntities.size())
@@ -457,17 +512,17 @@ namespace ECS
 
 	private:
 		template<typename T>
-		ComponentContainer<T>* TryGetContainer()
+		ComponentContainer<T, memoryMegaByteSize>* TryGetContainer()
 		{
 			const char* typeName = typeid(T).name();
-			ComponentContainer<T>* container = nullptr;
+			ComponentContainer<T, memoryMegaByteSize>* container = nullptr;
 
 			auto it = myComponentContainers.find(typeName);
 
 
 			if (it != myComponentContainers.end())
 			{
-				container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 			}
 
 			return container;
@@ -475,17 +530,17 @@ namespace ECS
 
 
 		template<typename T>
-		ComponentContainer<T>* GetContainer()
+		ComponentContainer<T, memoryMegaByteSize>* GetContainer()
 		{
 			const char* typeName = typeid(T).name();
-			ComponentContainer<T>* container = nullptr;
+			ComponentContainer<T, memoryMegaByteSize>* container = nullptr;
 
 			auto it = myComponentContainers.find(typeName);
 
 
 			if (it != myComponentContainers.end())
 			{
-				container = dynamic_cast<ComponentContainer<T>*>(it->second);
+				container = dynamic_cast<ComponentContainer<T, memoryMegaByteSize>*>(it->second);
 			}
 
 			return container;
@@ -511,6 +566,9 @@ namespace ECS
 
 
 		std::bitset<maxSize> myValidEntities;
+
+
+		MemoryManager myMemoryManager{ megaByteSize * memoryMegaByteSize };
 
 		std::unordered_map<std::string, ComponentContainerInterface*> myComponentContainers{};
 	};

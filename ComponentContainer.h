@@ -14,7 +14,7 @@ template <class T> using Vector = std::vector<T, MemoryAllocator<T>>;
 
 namespace ECS
 {
-	constexpr uint64_t megaByteSize = 1024 * 1024;
+	//constexpr uint64_t megaByteSize = 1024 * 1024;
 
 	class ComponentContainerInterface
 	{
@@ -31,7 +31,7 @@ namespace ECS
 		std::vector<int32_t> myComponentIndexes;
 	};
 
-	template<typename T>
+	template<typename T, typename size_t memoryMegaByteSize = 1>
 	class ComponentContainer : public ComponentContainerInterface
 	{
 	public:
@@ -76,7 +76,7 @@ namespace ECS
 			friend ComponentContainer;
 		};
 
-		ComponentContainer() = default;
+		ComponentContainer(MemoryManager& aMemoryManager) : myMemoryManager(aMemoryManager) {}
 
 		// Copy c:tor
 		ComponentContainer(const ComponentContainer& aContainer) = delete;
@@ -315,7 +315,7 @@ namespace ECS
 		ECS::Signal<Entity> myOnRemoveCallbacks;
 
 
-		MemoryManager myMemoryManager{ megaByteSize };
+		MemoryManager& myMemoryManager{ megaByteSize * memoryMegaByteSize };
 
 		// Dense set
 		Vector<ComponentWrapper> myComponents{ Allocator<ComponentWrapper>(myMemoryManager) };
