@@ -108,12 +108,38 @@ namespace ECS
 			return myComponents.back().myComponent;
 		}
 
+		T& EmplaceOrReplace(Entity aEntity)
+		{
+
+			if (myComponentIndexes.size() < static_cast<size_t>(aEntity) + 1)
+			{
+				return Emplace(aEntity);
+			}
+
+			size_t entity = static_cast<size_t>(aEntity);
+			int32_t componentIndex = myComponentIndexes[entity];
+
+			if (componentIndex != -1)
+			{
+				myComponents[componentIndex].myComponent = T{};
+
+				myOnCreateCallbacks.Publish(aEntity);
+
+				return myComponents[componentIndex].myComponent;
+
+			}
+			else
+			{
+				return Emplace(aEntity);
+			}
+		}
+
 
 		T* TryGet(Entity aEntity)
 		{
 			T* result = nullptr;
 
-			if (myComponentIndexes.size() < static_cast<size_t>(aEntity + 1))
+			if (myComponentIndexes.size() < static_cast<size_t>(aEntity) + 1)
 			{
 				return result;
 			}
@@ -136,7 +162,7 @@ namespace ECS
 
 		T* Get(Entity aEntity)
 		{
-			assert(myComponentIndexes.size() >= static_cast<size_t>(aEntity + 1));
+			assert(myComponentIndexes.size() >= static_cast<size_t>(aEntity) + 1);
 
 			T* result = nullptr;
 
@@ -154,7 +180,7 @@ namespace ECS
 		bool RemoveComponent(Entity aEntity) 
 		{
 			// Try to remove the component
-			if (myComponentIndexes.size() < static_cast<size_t>(aEntity + 1))
+			if (myComponentIndexes.size() < static_cast<size_t>(aEntity) + 1)
 			{
 				return false;
 			}
@@ -193,49 +219,49 @@ namespace ECS
 		template<class U, class V>
 		void ConnectOnCreate(U&& aFunction, V&& aInstance)
 		{
-			myOnCreateCallbacks.Connect(aFunction, aInstance);
+			myOnCreateCallbacks.Connect(std::forward<U>(aFunction), std::forward<V>(aInstance));
 		}
 
 		template<class U>
 		void ConnectOnCreate(U&& aFunction)
 		{
-			myOnCreateCallbacks.Connect(aFunction);
+			myOnCreateCallbacks.Connect(std::forward<U>(aFunction));
 		}
 
 		template<class U, class V>
 		void DisconnectOnCreate(U&& aFunction, V&& aInstance)
 		{
-			myOnCreateCallbacks.Disconnect(aFunction, aInstance);
+			myOnCreateCallbacks.Disconnect(std::forward<U>(aFunction), std::forward<V>(aInstance));
 		}
 
 		template<class U>
 		void DisconnectOnCreate(U&& aFunction)
 		{
-			myOnCreateCallbacks.Disconnect(aFunction);
+			myOnCreateCallbacks.Disconnect(std::forward<U>(aFunction));
 		}
 
 		template<class U, class V>
 		void ConnectOnRemove(U&& aFunction, V&& aInstance)
 		{
-			myOnRemoveCallbacks.Connect(aFunction, aInstance);
+			myOnRemoveCallbacks.Connect(std::forward<U>(aFunction), std::forward<V>(aInstance));
 		}
 
 		template<class U>
 		void ConnectOnRemove(U&& aFunction)
 		{
-			myOnRemoveCallbacks.Connect(aFunction);
+			myOnRemoveCallbacks.Connect(std::forward<U>(aFunction));
 		}
 
 		template<class U, class V>
 		void DisconnectOnRemove(U&& aFunction, V&& aInstance)
 		{
-			myOnRemoveCallbacks.Disconnect(aFunction, aInstance);
+			myOnRemoveCallbacks.Disconnect(std::forward<U>(aFunction), std::forward<V>(aInstance));
 		}
 
 		template<class U>
 		void DisconnectOnRemove(U&& aFunction)
 		{
-			myOnRemoveCallbacks.Disconnect(aFunction);
+			myOnRemoveCallbacks.Disconnect(std::forward<U>(aFunction));
 		}
 
 

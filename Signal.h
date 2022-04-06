@@ -66,7 +66,7 @@ namespace ECS
 		{
 
 			// Kanske går att klistra in Bind-koden direkt här istället?
-			std::function<void(Args ...)> function = Bind(aFunction, &aInstance);
+			std::function<void(Args ...)> function = Bind(std::forward<U>(aFunction), std::forward<V>(aInstance));
 
 			myCallbacks.push_back(function);
 		}
@@ -74,7 +74,6 @@ namespace ECS
 		template<class U>
 		void Connect(U&& aFunction)
 		{
-
 			myCallbacks.push_back(aFunction);
 		}
 
@@ -85,7 +84,7 @@ namespace ECS
 		{
 			for (size_t i = myCallbacks.size(); i > 0; i--)
 			{
-				if (GetAdress(myCallbacks[i -1]) == GetAdress(aFunction))
+				if (GetAdress(myCallbacks[i -1]) == GetAdress(std::forward<U>(aFunction)))
 				{
 					myCallbacks[i - 1] = myCallbacks.back();
 					myCallbacks.pop_back();
@@ -98,7 +97,7 @@ namespace ECS
 		void Disconnect(U&& aFunction, V&& aInstance)
 		{
 			// Kanske går att klistra in Bind-koden direkt här istället?
-			std::function<void(Args ...)> function = Bind(aFunction, &aInstance);
+			std::function<void(Args ...)> function = Bind(std::forward<U>(aFunction), std::forward<V>(aInstance));
 
 
 			for (size_t i = myCallbacks.size(); i > 0; i--)

@@ -19,7 +19,10 @@ namespace ECS
 	{
 	public:
 
-
+		/// <summary>
+		/// Creates a new entity
+		/// </summary>
+		/// <returns> a new entity </returns>
 		Entity Create()
 		{
 			Entity entity = {};
@@ -32,9 +35,6 @@ namespace ECS
 			}
 			else
 			{
-			    //myEntities.emplace_back();
-			    //entity = static_cast<Entity>(myEntities.size() - 1);
-
 				entity = myEntitiesCount++;
 			}
 			
@@ -48,14 +48,10 @@ namespace ECS
 
 			return entity;
 		}
-		//	
-
 
 		void Destroy(Entity aEntity)
 		{
 			myFreeIDs.push(aEntity);
-			//myEntities[aEntity].reset();
-
 
 			for (auto& it : myComponentContainers)
 			{
@@ -69,12 +65,12 @@ namespace ECS
 		/// Emplaces a new component. Does nothing if component already exists.
 		/// </summary>
 		/// <typeparam name="T">ComponentType</typeparam>
-		/// <param name="aEntity"></param>
+		/// <param name="aEntity"> Target of emplacement </param>
 		/// <returns>Component reference</returns>
 		template<typename T>
 		T& Emplace(const Entity aEntity)
 		{		
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
@@ -107,15 +103,15 @@ namespace ECS
 
 
 		/// <summary>
-		/// Emplaces a new component. Does nothing if component already exists.
+		/// Emplaces a new component. Replaces if component already exist.
 		/// </summary>
 		/// <typeparam name="T">ComponentType</typeparam>
-		/// <param name="aEntity"></param>
+		/// <param name="aEntity">  Target of emplacement </param>
 		/// <returns>Component reference</returns>
 		template<typename T>
 		T& EmplaceOrReplace(const Entity aEntity)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
@@ -132,21 +128,18 @@ namespace ECS
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
 				
-				T* component = container->TryGet(aEntity);
-
-				if (component)
-				{
-					return *component;
-				}
-				else
-				{
-					return container->Emplace(aEntity);
-				}
+				return container->EmplaceOrReplace(aEntity);
 			}
 		}
 
 
-
+		/// <summary>
+		/// Gets the component. Emplaces a new component if
+		/// there is none.
+		/// </summary>
+		/// <typeparam name="T">ComponentType</typeparam>
+		/// <param name="aEntity">  Target of emplacement </param>
+		/// <returns> Component reference </returns>
 		template<typename T>
 		T& GetOrEmplace(const Entity aEntity)
 		{
@@ -169,7 +162,7 @@ namespace ECS
 			{
 				auto* newContainer = new ComponentContainer<T>();
 
-				std::string typeName = typeid(T).name();
+				const char* typeName = typeid(T).name();
 
 				myComponentContainers[typeName] = newContainer;
 
@@ -177,11 +170,15 @@ namespace ECS
 			}
 		}
 
+		/// <summary>
+		/// Tries to get the component
+		/// </summary>
+		/// <typeparam name="T">ComponentType</typeparam>
+		/// <param name="aEntity"> Owner of component </param>
+		/// <returns> A pointer to the component. Nullpointer if component cannot be found </returns>
 		template<typename T>
 		T* TryGet(const Entity aEntity) 
 		{
-			//XXH64_hash_t hash = TypeNameToHash<T>();
-
 			auto container = TryGetContainer<T>();
 
 			if (container)
@@ -194,17 +191,27 @@ namespace ECS
 			}
 		}
 
+		/// <summary>
+		/// Gets the component. Should only be used when you are sure the entity has the component, otherwise you will
+		/// get undefined behaviour. 
+		/// </summary>
+		/// <typeparam name="T">ComponentType</typeparam>
+		/// <param name="aEntity"> Owner of component </param>
+		/// <returns> Component reference </returns>
 		template<typename T>
 		T& Get(const Entity aEntity)
 		{
-			//XXH64_hash_t hash = TypeNameToHash<T>();
 			auto* container = GetContainer<T>();
 
 			return *container->Get(aEntity);
-
 		}
 
-
+		/// <summary>
+		/// Removes component from entity
+		/// </summary>
+		/// <typeparam name="T">ComponentType</typeparam>
+		/// <param name="aEntity">Owner of component </param>
+		/// <returns> Returns true if removal was successful, otherwise returns false </returns>
 		template<typename T>
 		bool Remove(Entity aEntity)
 		{
@@ -221,49 +228,11 @@ namespace ECS
 		}
 
 
-
-		//template<typename T>
-		//T* Get(const Entity aEntity)
-		//{
-		//	//XXH64_hash_t hash = TypeNameToHash<T>();
-
-		//	auto container = TryGetContainer<T>();
-
-		//	if (container)
-		//	{
-		//		return container->GetComponent(aEntity);
-		//	}
-		//	else
-		//	{
-		//		return nullptr;
-		//	}
-		//}
-
-
-		//template<typename T>
-		//std::vector<T>& View()
-		//{
-		//	const std::string typeName = typeid(T).name();
-		//	ComponentContainer<T>* container = nullptr;
-
-		//	auto it = myComponentContainers.find(typeName);
-
-
-		//	if (it != myComponentContainers.end())
-		//	{
-		//		container = dynamic_cast<ComponentContainer<T>*>(it->second);
-		//	}
-
-		//	return container->GetComponents();
-		//}
-
-
-		//template<typename T>
-		//ComponentContainer<T>* GetView()
-		//{
-		//	return TryGetContainer<T>();
-		//}
-
+		/// <summary>
+		/// Gets a container of all components of the choosen type.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <returns>Component container reference </returns>
 		template<typename T>
 		ComponentContainer<T>& GetView()
 		{
@@ -273,99 +242,28 @@ namespace ECS
 			{
 				container = new ComponentContainer<T>();
 
-				std::string typeName = typeid(T).name();
+				const char* typeName = typeid(T).name();
 
 				myComponentContainers[typeName] = container;
 			}
 
-
 			return *container;
 		}
-
 		
 
-		//template<class T, class U>
-		//struct View2
-		//{
-		//	ComponentContainer<T>* myFirst;
-		//	ComponentContainer<U>* mySecond;
-		//};
 
-		//template<typename T, class U>
-		//View2<T, U> GetView()
-		//{
-		//	View2<T, U> view;
-
-		//	view.myFirst = TryGetContainer<T>();
-		//	view.mySecond = TryGetContainer<U>();
-
-
-
-		//	return view;
-		//}
-
-		//template<class T, class U>
-		//struct View3
-		//{
-		//	ComponentContainer<T>* myFirst;
-		//	ComponentContainer<U>* mySecond;
-		//	ComponentContainer<V>* myThird;
-		//};
-
-		//template<typename T, class U>
-		//View3<T, U> GetView()
-		//{
-
-
-
-		//	return *TryGetContainer<T>();
-		//}
-
-
-
-
-
-		template<typename T>
-		ComponentContainer<T>* TryGetContainer()
-		{
-			const std::string typeName = typeid(T).name();
-			ComponentContainer<T>* container = nullptr;
-
-			auto it = myComponentContainers.find(typeName);
-
-
-			if (it != myComponentContainers.end())
-			{
-				container = dynamic_cast<ComponentContainer<T>*>(it->second);
-			}
-
-			return container;
-		}
-
-
-
-		template<typename T>
-		ComponentContainer<T>* GetContainer()
-		{
-			const std::string typeName = typeid(T).name();
-			ComponentContainer<T>* container = nullptr;
-
-			auto it = myComponentContainers.find(typeName);
-
-
-			if (it != myComponentContainers.end())
-			{
-				container = dynamic_cast<ComponentContainer<T>*>(it->second);
-			}
-
-			return container;
-		}
-
-
+		/// <summary>
+		/// Connects a function to be called when the choosen component is emplaced to any entity.
+		/// </summary>
+		/// <typeparam name="T">Type of component</typeparam>
+		/// <typeparam name="U">Adress of a function to be called </typeparam>
+		/// <typeparam name="V"></typeparam>
+		/// <param name="aFunction"></param>
+		/// <param name="aInstance"></param>
 		template<class T, class U, class V>
 		void ConnectOnEmplace(U&& aFunction, V&& aInstance)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
@@ -375,20 +273,22 @@ namespace ECS
 
 				myComponentContainers[typeName] = container;
 
-				container->ConnectOnCreate(aFunction, aInstance);
+				//container->ConnectOnCreate(aFunction, aInstance);
+				container->ConnectOnCreate(std::forward<U>(aFunction), std::forward<V>(aInstance));
 
 			}
 			else
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->ConnectOnCreate(aFunction, aInstance);
+				//container->ConnectOnCreate(aFunction, aInstance);
+				container->ConnectOnCreate(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
 		template<class T, class U>
 		void ConnectOnEmplace(U&& aFunction)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
@@ -398,48 +298,48 @@ namespace ECS
 
 				myComponentContainers[typeName] = container;
 
-				container->ConnectOnCreate(aFunction);
+				container->ConnectOnCreate(std::forward<U>(aFunction));
 
 			}
 			else
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->ConnectOnCreate(aFunction);
+				container->ConnectOnCreate(std::forward<U>(aFunction));
 			}
 		}
 
 		template<class T, class U, class V>
 		void DisconnectOnEmplace(U&& aFunction, V&& aInstance)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
 			if (it != myComponentContainers.end())
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->DisconnectOnCreate(aFunction, aInstance);
+				container->DisconnectOnCreate(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
 		template<class T, class U>
 		void DisconnectOnEmplace(U&& aFunction)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
 			if (it != myComponentContainers.end())
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->DisconnectOnCreate(aFunction);
+				container->DisconnectOnCreate(std::forward<U>(aFunction));
 			}
 		}
 
 		template<class T, class U, class V>
 		void ConnectOnRemove(U&& aFunction, V&& aInstance)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
@@ -449,20 +349,20 @@ namespace ECS
 
 				myComponentContainers[typeName] = container;
 
-				container->ConnectOnRemove(aFunction, aInstance);
+				container->ConnectOnRemove(std::forward<U>(aFunction), std::forward<V>(aInstance));
 
 			}
 			else
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->ConnectOnRemove(aFunction, aInstance);
+				container->ConnectOnRemove(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
 		template<class T, class U>
 		void ConnectOnRemove(U&& aFunction)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
@@ -472,41 +372,41 @@ namespace ECS
 
 				myComponentContainers[typeName] = container;
 
-				container->ConnectOnRemove(aFunction);
+				container->ConnectOnRemove(std::forward<U>(aFunction));
 
 			}
 			else
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->ConnectOnRemove(aFunction);
+				container->ConnectOnRemove(std::forward<U>(aFunction));
 			}
 		}
 
 		template<class T, class U, class V>
 		void DisconnectOnRemove(U&& aFunction, V&& aInstance)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
 			if (it != myComponentContainers.end())
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->DisconnectOnRemove(aFunction, aInstance);
+				container->DisconnectOnRemove(std::forward<U>(aFunction), std::forward<V>(aInstance));
 			}
 		}
 
 		template<class T, class U>
 		void DisconnectOnRemove(U&& aFunction)
 		{
-			std::string typeName = typeid(T).name();
+			const char* typeName = typeid(T).name();
 
 			auto it = myComponentContainers.find(typeName);
 
 			if (it != myComponentContainers.end())
 			{
 				auto* container = dynamic_cast<ComponentContainer<T>*>(it->second);
-				container->DisconnectOnRemove(aFunction);
+				container->DisconnectOnRemove(std::forward<U>(aFunction));
 			}
 		}
 
@@ -556,7 +456,40 @@ namespace ECS
 
 
 	private:
+		template<typename T>
+		ComponentContainer<T>* TryGetContainer()
+		{
+			const char* typeName = typeid(T).name();
+			ComponentContainer<T>* container = nullptr;
 
+			auto it = myComponentContainers.find(typeName);
+
+
+			if (it != myComponentContainers.end())
+			{
+				container = dynamic_cast<ComponentContainer<T>*>(it->second);
+			}
+
+			return container;
+		}
+
+
+		template<typename T>
+		ComponentContainer<T>* GetContainer()
+		{
+			const char* typeName = typeid(T).name();
+			ComponentContainer<T>* container = nullptr;
+
+			auto it = myComponentContainers.find(typeName);
+
+
+			if (it != myComponentContainers.end())
+			{
+				container = dynamic_cast<ComponentContainer<T>*>(it->second);
+			}
+
+			return container;
+		}
 
 
 		//template<typename T>
