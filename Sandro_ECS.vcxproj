@@ -141,20 +141,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cc.h" />
-    <ClInclude Include="ComponentContainer.h" />
+    <ClInclude Include="ComponentContainer.hpp" />
     <ClInclude Include="Entity.hpp" />
-    <ClInclude Include="MemoryAllocator.h" />
-    <ClInclude Include="MemoryManager.h" />
-    <ClInclude Include="Registry.h" />
-    <ClInclude Include="Signal.h" />
+    <ClInclude Include="MemoryAllocator.hpp" />
+    <ClInclude Include="MemoryManager.hpp" />
+    <ClInclude Include="Registry.hpp" />
+    <ClInclude Include="Signal.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ComponentContainer.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MemoryAllocator.cpp" />
-    <ClCompile Include="MemoryManager.cpp" />
-    <ClCompile Include="Registry.cpp" />
-    <ClCompile Include="Signal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

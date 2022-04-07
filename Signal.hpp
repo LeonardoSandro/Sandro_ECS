@@ -1,56 +1,14 @@
 #pragma once
-//#include "ENTT\entt.hpp"
 #include <vector>
 #include <functional>
 
-
-
-
-// Glöm inte att lägga functionerna i public/private
-
-
-
-
-struct ListenerExample
-{
-	void Bar(int aInt, char aChar)
-	{
-		aInt;
-		aChar;
-
-	}
-
-
-	//void Bar()
-	//{
-
-	//}
-};
-
-
-struct ListenerExample2
-{
-	static void Foo(int aInt, char aChar)
-	{
-		aInt;
-		aChar;
-	}
-};
-
-
-
-
 namespace ECS
 {
-	// Kanske borde döpa den här till "Publisher"
-
-	//template<typename T, typename ... Args>
 	template<typename ... Args>
 	class Signal
 	{
 	public:
 
-		//template<typename... Args>
 		void Publish(Args... aArgs)
 		{	
 			for (std::function<void(Args ...)>& callback : myCallbacks)
@@ -59,7 +17,6 @@ namespace ECS
 
 			}
 		};
-
 
 		template<class U, class V>
 		void Connect(U && aFunction, V&& aInstance)
@@ -77,8 +34,6 @@ namespace ECS
 			myCallbacks.push_back(aFunction);
 		}
 
-
-
 		template<class U>
 		void Disconnect(U&& aFunction)
 		{
@@ -91,7 +46,6 @@ namespace ECS
 				}
 			}
 		}
-
 
 		template<class U, class V>
 		void Disconnect(U&& aFunction, V&& aInstance)
@@ -120,14 +74,6 @@ namespace ECS
 			return [pointer, function](Params... params)->A {return (pointer->*function)(params...); };
 		}
 
-		//size_t GetAdress(std::function<void(Args...)> aFunction)
-		//{
-		//	typedef void(functionType)(Args...);
-		//	functionType** functionPointer = aFunction.template target<functionType*>();
-		//	return (size_t)*functionPointer;
-		//}
-
-
 		long GetAdress(std::function<void(Args...)> aFunction)
 		{
 			return *(long*)(char*)&aFunction;
@@ -137,29 +83,4 @@ namespace ECS
 	};
 }
 
-
-
-class SinkAndSightTest
-{
-public:
-
-
-	void Init()
-	{
-
-		//ListenerExample instance;
-
-		
-
-		//EstablishConnection(instance);
-	}
-
-
-private:
-	
-	//entt::sigh<void(int, char)> mySignal;
-
-	ECS::Signal<int, char> myECSSignal;
-	void EstablishConnection(ListenerExample& aInstance);
-};
 

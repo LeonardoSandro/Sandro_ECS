@@ -20,37 +20,22 @@
     <ClInclude Include="cc.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryManager.h">
+    <ClInclude Include="MemoryManager.hpp">
       <Filter>Memory Manager</Filter>
     </ClInclude>
-    <ClInclude Include="Registry.h">
+    <ClInclude Include="Registry.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentContainer.h">
+    <ClInclude Include="ComponentContainer.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryAllocator.h">
+    <ClInclude Include="MemoryAllocator.hpp">
       <Filter>Memory Manager</Filter>
     </ClInclude>
-    <ClInclude Include="Signal.h" />
+    <ClInclude Include="Signal.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Registry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ComponentContainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MemoryManager.cpp">
-      <Filter>Memory Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="MemoryAllocator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Signal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

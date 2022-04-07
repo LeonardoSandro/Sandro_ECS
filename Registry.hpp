@@ -2,13 +2,10 @@
 #include <vector>
 #include <bitset>
 #include <queue>
-#include "ComponentContainer.h"
+#include "ComponentContainer.hpp"
 #include <unordered_map>
 #include <memory>
 #include <bitset>
-
-//#define XXH_INLINE_ALL
-//#include "xxHash\xxhash.h"
 
 namespace ECS
 {
@@ -457,7 +454,6 @@ namespace ECS
 			}
 		}
 
-
 		/// <summary>
 		/// Clears all the components and entities 
 		/// </summary>
@@ -493,7 +489,7 @@ namespace ECS
 		}
 
 		/// <summary>
-		/// Checks weather a entity is valid or not
+		/// Checks if a entity is valid (includes check for null)
 		/// </summary>
 		/// <param name="aEntity"></param>
 		/// <returns></returns>
@@ -506,9 +502,6 @@ namespace ECS
 
 			return myValidEntities[static_cast<size_t>(aEntity)];
 		}
-
-
-
 
 	private:
 		template<typename T>
@@ -546,27 +539,13 @@ namespace ECS
 			return container;
 		}
 
-
-		//template<typename T>
-		//XXH64_hash_t TypeNameToHash()
-		//{
-		//	const char* typeName = typeid(T).name();
-		//	return XXH3_64bits(typeName, sizeof(char) * strlen(typeName) + 1);
-		//}
-
-
 		static constexpr int myMaxComponentCount = 32;
-
-		//std::vector<Entity> myEntities;
 
 		Entity myEntitiesCount = 0;
 
-		//std::vector<std::bitset<myMaxComponentCount>> myEntities;
 		std::queue<Entity> myFreeIDs;
 
-
 		std::bitset<maxSize> myValidEntities;
-
 
 		MemoryManager myMemoryManager{ megaByteSize * memoryMegaByteSize };
 

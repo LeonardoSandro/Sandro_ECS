@@ -1,17 +1,10 @@
-#include "Registry.h"
+#include "Registry.hpp"
 
 #include <memory>
 #include <vector>
 
-#include "MemoryManager.h"
-#include "MemoryAllocator.h"
-
-
-
-
-
-
-
+#include "MemoryManager.hpp"
+#include "MemoryAllocator.hpp"
 
 
 struct A
@@ -22,7 +15,7 @@ struct A
 struct B
 {
 	float b = 3.f;
-	int ghhgh = 1;
+	int c = 1;
 };
 
 
@@ -32,15 +25,10 @@ struct Transform
 	float y;
 	float z;
 
-	
-	
-	// !! replace with actual velocity object
 	float velocityX = 4;
 	float velocityY;
 	float velocityZ;
 };
-
-
 
 
 template <class T> using Allocator = MemoryAllocator<T>;
@@ -58,45 +46,26 @@ struct Junk
 void test(MemoryManager& aMM)
 {
 
-	//Vector<int> v{ Allocator<int>(mm) };
 	Vector<int> v{ Allocator<int>(aMM) };
-	//v.reserve(40);
 
 	v.push_back(9);
 	v.push_back(9);
 
-	{
-		//Vector<Junk> junkVector{ Allocator<Junk>(aMM) };
 
-		//for (int i = 0; i < 4; ++i)
-		//	junkVector.push_back(Junk());
+	std::vector<int> testV;
 
-		std::vector<int> testV;
-
-		for (int i = 0; i < 34; ++i)
-			testV.push_back(i);
-	}
+	for (int i = 0; i < 34; ++i)
+		testV.push_back(i);
 
 
 	for (int i = 0; i < 34; ++i)
 		v.push_back(i);
 
-
-
-	//Vector<int> v2 = std::move(v);
-	//v = v2;
-
-//	Vector<int> v3{ Allocator<int>(aMM) };
-//	for (int i = 0; i < 10; ++i)
-//		v.push_back(9);
 }
 
 void test2(MemoryManager& aMM)
 {
-
-	//Vector<int> v{ Allocator<int>(mm) };
 	Vector<int> v{ Allocator<char>(aMM) };
-	//v.reserve(40);
 
 	v.push_back('A');
 	v.push_back('A');
@@ -104,33 +73,15 @@ void test2(MemoryManager& aMM)
 
 	for (int i = 0; i < 34; ++i)
 		v.push_back(i);
-
-
-
-	//Vector<int> v2 = std::move(v);
-	//v = v2;
-
-//	Vector<int> v3{ Allocator<int>(aMM) };
-//	for (int i = 0; i < 10; ++i)
-//		v.push_back(9);
 }
 
-
-
-int main()
+void MemoryManagerTest()
 {
 	const std::size_t N = 1024;
 	MemoryManager mm(N);
 
-	//Allocator<int>* allocator = new Allocator<int>(mm);
-	//Vector<int> v{ Allocator<int>(mm) };
 
 	test(mm);
-
-	//Vector<int> v{ *allocator };
-	//v.reserve(10);
-	//for (int i = 0; i < 2; ++i)
-	//	v.push_back(2);
 
 	test(mm);
 	test2(mm);
@@ -153,6 +104,12 @@ int main()
 
 	}
 	test2(mm);
+}
+
+
+int main()
+{
+	MemoryManagerTest();
 
 
 	std::unique_ptr<ECS::Registry<>> registry = std::make_unique<ECS::Registry<>>();
@@ -207,12 +164,4 @@ int main()
 		int a = 1;
 		a = 2;
 	}
-
-	//MemoryManager memManager(640000);
-	//memManager.TestRun();
-
-
-
-
-
 }

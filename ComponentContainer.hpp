@@ -2,9 +2,9 @@
 #include "Entity.hpp"
 #include <vector>
 #include <memory>
-#include "MemoryAllocator.h"
+#include "MemoryAllocator.hpp"
 #include <string_view>
-#include "Signal.h"
+#include "Signal.hpp"
 
 
 
@@ -14,8 +14,6 @@ template <class T> using Vector = std::vector<T, MemoryAllocator<T>>;
 
 namespace ECS
 {
-	//constexpr uint64_t megaByteSize = 1024 * 1024;
-
 	class ComponentContainerInterface
 	{
 	public:
@@ -81,9 +79,6 @@ namespace ECS
 		// Copy c:tor
 		ComponentContainer(const ComponentContainer& aContainer) = delete;
 
-		
-
-
 		T& Emplace(Entity aEntity)
 		{
 			myComponents.push_back({ T(), aEntity });
@@ -104,7 +99,6 @@ namespace ECS
 
 			myOnCreateCallbacks.Publish(aEntity);
 
-			//myViewIsUpdated = false;
 			return myComponents.back().myComponent;
 		}
 
@@ -156,10 +150,6 @@ namespace ECS
 			return result;
 		}
 
-
-
-
-
 		T* Get(Entity aEntity)
 		{
 			assert(myComponentIndexes.size() >= static_cast<size_t>(aEntity) + 1);
@@ -179,7 +169,6 @@ namespace ECS
 
 		bool RemoveComponent(Entity aEntity) 
 		{
-			// Try to remove the component
 			if (myComponentIndexes.size() < static_cast<size_t>(aEntity) + 1)
 			{
 				return false;
@@ -319,16 +308,6 @@ namespace ECS
 
 		// Dense set
 		Vector<ComponentWrapper> myComponents{ Allocator<ComponentWrapper>(myMemoryManager) };
-
-
-		// For faster removal 
-		//Entity myBackHolderEntity = ECS::null;
-
-
-
-		//// For public use, fast iteration over all entities that owns component T.
-		//std::vector<Entity> myView;
-		//bool myViewIsUpdated = false;
 	};
 }
 
