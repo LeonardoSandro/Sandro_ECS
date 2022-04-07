@@ -6,11 +6,8 @@
 #include <string_view>
 #include "Signal.hpp"
 
-
-
 template <class T> using Allocator = MemoryAllocator<T>;
 template <class T> using Vector = std::vector<T, MemoryAllocator<T>>;
-
 
 namespace ECS
 {

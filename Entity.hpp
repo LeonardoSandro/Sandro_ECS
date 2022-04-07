@@ -10,5 +10,3 @@ namespace ECS
 		null = -1 
 	};
 }
-
-

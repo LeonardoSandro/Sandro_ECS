@@ -3,8 +3,7 @@
 #include <assert.h>
 #include <iostream>
 
-
-// Linear allocation
+// Uses linear allocation
 
 constexpr int IS_ALLOCATED = 1;
 constexpr int IS_END_OF_HEAP = 2;
@@ -45,7 +44,6 @@ class MemoryManager
 		|---------------------------|
 		|Header( A.K.A Footer)      |
 		----------------------------*/
-
 
 
 public:

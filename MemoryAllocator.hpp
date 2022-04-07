@@ -1,6 +1,5 @@
 #pragma once
 #include "MemoryManager.hpp"
-
 #include <limits>
 
 #pragma warning(push)

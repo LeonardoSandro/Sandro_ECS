@@ -14,7 +14,6 @@ namespace ECS
 			for (std::function<void(Args ...)>& callback : myCallbacks)
 			{
 				callback(aArgs...);
-
 			}
 		};
 
@@ -63,7 +62,6 @@ namespace ECS
 				}
 			}
 		}
-
 
 	private:
 

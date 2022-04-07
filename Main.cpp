@@ -149,7 +149,6 @@ int main()
 
 	auto& view = registry->GetView<Transform>();
 
-
 	for (auto& componentWrapper : view.GetComponents())
 	{
 		auto& component = componentWrapper.GetComponent();

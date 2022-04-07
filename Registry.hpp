@@ -474,7 +474,6 @@ namespace ECS
 					delete it.second;
 				}
 
-
 				std::unordered_map<std::string, ComponentContainerInterface*> emptyMap;
 				std::swap(myComponentContainers, emptyMap);
 
